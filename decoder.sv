@@ -4,7 +4,8 @@ module decoder (input  logic [1:0] iOp,
 					 output logic [1:0] oFlagW,
 					 output logic       oPCS, oRegW, oMemW,
 					 output logic       oMemtoReg, oALUSrc,
-					 output logic [1:0] oImmSrc, oRegSrc, oALUControl);
+					 output logic [1:0] oImmSrc, oRegSrc,
+					 output logic [2:0] oALUControl);
 
 	logic [9:0] controls;
 	logic       Branch, ALUOp;
@@ -32,10 +33,10 @@ module decoder (input  logic [1:0] iOp,
 	always_comb
 	if(ALUOp) begin
 		case(iFunct[4:1])
-			4'b0100: oALUControl=2'b00;	//ADD
-			4'b0010: oALUControl=2'b01;	//SUB
-			4'b0000: oALUControl=2'b10;	//AND
-			4'b1100: oALUControl=2'b11;	//ORR
+			4'b0100: oALUControl=2'b000;	//ADD
+			4'b0010: oALUControl=2'b001;	//SUB
+			4'b0000: oALUControl=2'b010;	//AND
+			4'b1100: oALUControl=2'b011;	//ORR
 			default: oALUControl=2'bx; 	//Sin implementar
 		endcase
 		
