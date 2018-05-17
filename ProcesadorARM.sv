@@ -1,9 +1,9 @@
 module ProcesadorARM(input logic clk, reset,
-					output logic [31:0] PC,
 					input logic [31:0] Instr,
+					input logic [31:0] ReadData,
+					output logic [31:0] PC,
 					output logic MemWrite,
-					output logic [31:0] ALUResult, WriteData,
-					input logic [31:0] ReadData);
+					output logic [31:0] ALUResult, WriteData);
 					
 		logic [3:0] ALUFlags;
 		logic RegWrite,
