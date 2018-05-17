@@ -10,7 +10,7 @@ module ProcesadorARM(input logic clk, reset,
 				ALUSrc, MemtoReg, PCSrc;
 		logic [1:0] RegSrc, ImmSrc, ALUControl;
 		
-		unit_ctrl(clk, reset, Instr[31:12], ALUFlags,
+		unit_ctrl c(clk, reset, Instr[31:12], ALUFlags,
 						RegSrc, RegWrite, ImmSrc,
 						ALUSrc, ALUControl,
 						MemWrite, MemtoReg, PCSrc);
