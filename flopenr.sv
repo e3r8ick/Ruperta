@@ -6,4 +6,4 @@ module flopenr #(parameter WIDTH=8)
 		if (iReset)   oQ   <= 0;
 		else if (iEn) oQ   <= iD;
 
-end module 
+endmodule 

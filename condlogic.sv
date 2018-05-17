@@ -18,7 +18,7 @@ module condlogic (input  logic 		 iClk, iReset,
 	assign oMemWrite = iMemW & CondEx;
 	assign oPCSrc	  = iPCS & CondEx;
 	
-end module 
+endmodule 
 
 module condcheck (input  logic [3:0] iCond,
 						input  logic [3:0] iFlags,
@@ -30,8 +30,8 @@ module condcheck (input  logic [3:0] iCond,
 	
 	always_comb
 		case(iCond)
-			4'b0000: oCondEx = Zero;				//EQ
-			4'b0001: oCondEx = ~Zero;				//NE
+			4'b0000: oCondEx = zero;				//EQ
+			4'b0001: oCondEx = ~zero;				//NE
 			4'b0010: oCondEx = carry;				//CS
 			4'b0011: oCondEx = ~carry;				//CC
 			4'b0100: oCondEx = neg;					//MI
@@ -43,9 +43,9 @@ module condcheck (input  logic [3:0] iCond,
 			4'b1010: oCondEx = ge;					//GE
 			4'b1011: oCondEx = ~ge;					//LT
 			4'b1100: oCondEx = ~zero & ge;		//GT
-			4'b1101: oCondEx = ~(~Zero & ge);	//LE
+			4'b1101: oCondEx = ~(~zero & ge);	//LE
 			4'b1110: oCondEx = 1'b1;				//Always
 			default: oCondEx = 1'bx;				//sin definir
 		endcase
 			
-end module 
+endmodule 
