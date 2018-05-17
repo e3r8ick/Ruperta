@@ -51,4 +51,4 @@ module decoder (input  logic [1:0] iOp,
 	//Logica PC
 	assign oPCS = ((oRd == 4'b1111) & oRegW) | Branch;
 		
-end module 
+endmodule 
