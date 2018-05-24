@@ -17,7 +17,7 @@ module ALU
 		
 		restadorNbits
 		#(width)
-		restador(a,b,d1,ALUFlags[3],ALUFlags[2],ALUFlags[1],ALUFlags[0]);
+		restador(a,b,d1,ALUFlags[3],ALUFlags[2],ALUFlags[0]);
 		
 		andN
 		#(width)
