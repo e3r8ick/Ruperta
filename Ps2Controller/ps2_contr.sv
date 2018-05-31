@@ -1,8 +1,12 @@
 module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
 					  output logic [7:0] oKeyCode);
-
-	logic [7:0] arrow_right = 8'h74;
-	logic [7:0] arrow_left = 8'h6B;
+	
+	logic [7:0] arrow_right = 8'h74;					//Right arrow makecode
+	logic [7:0] arrow_left = 8'h6B;					//Left arrow makecode
+	logic [7:0] breakcode = 8'hF0;					//General Breakcode
+	logic [7:0] releasecode = 8'hE0;					//General first makecode of the arrow keys, to set break_flag to 0
+	
+	reg break_flag;										//1 if de previous code was F0, to block the next code
 	
 	reg read; 												//this is 1 if still waits to receive more bits
 	reg [11:0] count_reading;							//this is used to detect how much time passed since it received the previous codeword
@@ -25,6 +29,7 @@ module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
 		read = 0;
 		count_reading = 0;
 		oKeyCode = 0;
+		break_flag = 0;
 	end
 	
 	always @(posedge iCLK) begin						//This reduces the frequency 250 times
@@ -62,14 +67,14 @@ module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
 			COUNT <= 0;
 			read <= 0;										//mark down that reading stopped
 			TRIG_ARR <= 1;									//trigger out that the full pack of 11bits was received
+			
 			//calculate scan_err using parity bit
 			if (!scan_code[10] || scan_code[0] || !(scan_code[1]^scan_code[2]^scan_code[3]^scan_code[4]
-				^scan_code[5]^scan_code[6]^scan_code[7]^scan_code[8]
-				^scan_code[9]))
+				^scan_code[5]^scan_code[6]^scan_code[7]^scan_code[8]^scan_code[9]))
 				scan_err <= 1;
 			else 
 				scan_err <= 0;
-		end	
+		end
 		else  begin											//if it yet not received full pack of 11 bits
 			TRIG_ARR <= 0;									//tell that the packet of 11bits was not received yet
 			if (COUNT < 11 && count_reading >= 4000) begin	//and if after a certain time no more bits were received, then
@@ -83,7 +88,7 @@ module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
 	
 	always @(posedge iCLK) begin
 		if (TRIGGER) begin								//if the 250 times slower than board clock triggers
-			if (TRIG_ARR) begin							//and if a full packet of 11 bits was received
+			if (TRIG_ARR) begin			//and if a full packet of 11 bits was received
 				if (scan_err) begin						//BUT if the packet was NOT OK
 					CODEWORD <= 8'd0;						//then reset the codeword register
 				end
@@ -91,19 +96,31 @@ module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
 					CODEWORD <= scan_code[8:1];		//else drop down the unnecessary  bits and transport the 7 DATA bits to CODEWORD reg
 				end											//notice, that the codeword is also reversed! This is because the first bit to received
 			end												//is supposed to be the last bit in the codeword…
-			else CODEWORD <= 8'd0;						//not a full packet received, thus reset codeword
+			else begin
+				CODEWORD <= 8'd0;						//not a full packet received, thus reset codeword
+			end
 		end
 		else CODEWORD <= 8'd0;							//no clock trigger, no data…
 	end
 	
-	//assign oKeyCode = CODEWORD;						//assign output code
-	
-	
 	always @(posedge iCLK) begin
-		if (CODEWORD == arrow_right)					//if the CODEWORD has the same code as the arrow_right code
-			oKeyCode <= oKeyCode + 1;					//count up the LED register to light up LEDs
-		else if (CODEWORD == arrow_left)				//or if the arrow_left was pressed, then
-			oKeyCode <= oKeyCode - 1;					//count down LED register 
+		
+		if (CODEWORD == releasecode) begin			//If the CODEWORD has the same code as the releasecode
+			break_flag <= 0;
+		end		
+		else if (CODEWORD == breakcode) begin		//If the CODEWORD has the same code as the breakcode
+			break_flag <= 1;
+		end		
+		else if (CODEWORD == arrow_right) begin					//if the CODEWORD has the same code as the arrow_right code
+			if(!break_flag) begin
+				oKeyCode <= CODEWORD;
+			end												//count up the LED register to light up LEDs
+		end
+		else if (CODEWORD == arrow_left)	begin			//or if the arrow_left was pressed, then
+			if(!break_flag) begin
+				oKeyCode <= CODEWORD;				//count down LED register
+			end
+		end
 	end
 
 
