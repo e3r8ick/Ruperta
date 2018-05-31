@@ -1,5 +1,5 @@
 module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
-					  output logic [7:0] oKeyCode);
+					  output logic [1:0] oPos);
 	
 	logic [7:0] arrow_right = 8'h74;					//Right arrow makecode
 	logic [7:0] arrow_left = 8'h6B;					//Left arrow makecode
@@ -7,6 +7,8 @@ module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
 	logic [7:0] releasecode = 8'hE0;					//General first makecode of the arrow keys, to set break_flag to 0
 	
 	reg break_flag;										//1 if de previous code was F0, to block the next code
+	
+	//reg [1:0] posicion;
 	
 	reg read; 												//this is 1 if still waits to receive more bits
 	reg [11:0] count_reading;							//this is used to detect how much time passed since it received the previous codeword
@@ -28,8 +30,9 @@ module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
 		CODEWORD = 0;
 		read = 0;
 		count_reading = 0;
-		oKeyCode = 0;
+		//oKeyCode = 0;
 		break_flag = 0;
+		//posicion = 1;
 	end
 	
 	always @(posedge iCLK) begin						//This reduces the frequency 250 times
@@ -113,12 +116,18 @@ module ps2_contr(input logic iPS2_clk, iCLK, iPS2_data,
 		end		
 		else if (CODEWORD == arrow_right) begin					//if the CODEWORD has the same code as the arrow_right code
 			if(!break_flag) begin
-				oKeyCode <= CODEWORD;
+				if(oPos != 2) begin
+					oPos <= oPos+1;
+				end
+				//oKeyCode <= CODEWORD;
 			end												//count up the LED register to light up LEDs
 		end
 		else if (CODEWORD == arrow_left)	begin			//or if the arrow_left was pressed, then
 			if(!break_flag) begin
-				oKeyCode <= CODEWORD;				//count down LED register
+				if(oPos != 0) begin
+					oPos <= oPos-1;
+				end
+				//oKeyCode <= CODEWORD;				//count down LED register
 			end
 		end
 	end
